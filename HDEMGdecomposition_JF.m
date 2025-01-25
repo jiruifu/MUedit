@@ -53,7 +53,7 @@ else
     disp(['User selected: ', fullFileName]);
     
     % Load the selected .mat file
-    data = load(fullFileName);
+    temp_data = load(fullFileName);
     disp('File loaded successfully.');
 end
 [path, filename, ext] = fileparts(fullFileName);
@@ -61,6 +61,20 @@ path = strcat(path, '\');
 data_name = strcat(filename, ext);
 disp(['Selected dataset is at: ', path]);
 disp(['Processing the dataset: ', data_name]);
+save_path = uigetdir;
+% save_path = strcat(save_path, '\');
+disp(['Output directory is:', save_path]);
+
+%%
+temp_data = load(fullFileName);
+ref_signal = temp_data.norm_ref_signal;
+plot(ref_signal)
+title('Reference Signal');
+hold on
+xlabel('Time');
+ylabel('Normalized Reference Signal');
+window_num = input('Enter the number of windows');
+clear temp_data;
 %% Input parameters
 parameters.pathname = path; % add a '/' at the end for Mac OS, add a '\' at the end for Windows
 parameters.filename = data_name; % filename.otb+ or filename.mat
@@ -69,11 +83,11 @@ parameters.filename = data_name; % filename.otb+ or filename.mat
 parameters.NITER = 50;
 parameters.ref_exist = 0; % if ref_signal exist ref_exist = 1; if not ref_exist = 0 and manual selection of windows
 parameters.checkEMG = 0; % 0 = Consider all the channels ; 1 = Visual checking
-parameters.nwindows = 1; % number of segmented windows over each contraction
+parameters.nwindows = window_num; % number of segmented windows over each contraction
 parameters.differentialmode = 0; % 0 = no; 1 = yes (filter out the smallest MU, can improve decomposition at the highest intensities
 parameters.initialization = 1; % 0 = max EMG; 1 = random weights
 parameters.peeloff = 1; % 0 = no; 1 = yes (update the residual EMG by removing the motor units with the highest SIL value)
-parameters.covfilter = 0; % 0 = no; 1 = yes (filter out the motor units with a coefficient of variation of their ISI > than parameters.covthr)
+parameters.covfilter = 1; % 0 = no; 1 = yes (filter out the motor units with a coefficient of variation of their ISI > than parameters.covthr)
 parameters.refineMU = 0; % 0 = no; 1 = yes (refine the MU spike train over the entire signal 1-remove the discharge times that generate outliers in the discharge rate and 2- reevaluate the MU pulse train)
 parameters.drawingmode = 1; % 0 = Output in the command window ; 1 = Output in a figure
 parameters.duplicatesbgrids = 0; % 0 = do not consider duplicates between grids ; 1 = Remove duplicates between grids
@@ -360,6 +374,23 @@ end
 
 % Save file
 clearvars signalprocess i j PulseT distime distimenew distimea actind idx1 time ISI CoV maxiter nwin Wini f xwb temp muscle
-savename = [parameters.filename '_decomp.mat'];
-save(savename, 'signal', 'parameters', '-v7.3');
+
+savename = [filename '_decomp.mat'];
+full_save_fname = fullfile(save_path, savename);
+save(full_save_fname, 'signal', 'parameters', '-v7.3');
+
+%% Add the result back to the original dataset
+bss_result = load(full_save_fname, 'signal');
+bss_result = bss_result.signal;
+raw_data = load(fullFileName);
+raw_data.old_mupulses = raw_data.MUPulses;
+raw_data.MUPulses = bss_result.Dischargetimes;
+raw_data.old_ipts = raw_data.IPTs;
+ipt = bss_result.Pulsetrain;
+raw_data.IPTs = ipt{1, 1};
+savename_newdata = [filename '.mat'];
+full_newdata_fname = fullfile(save_path, savename_newdata);
+save(full_newdata_fname, "raw_data");
+disp(['Dataset is updated with new result,saved at', full_newdata_fname]);
 close all
+clear
