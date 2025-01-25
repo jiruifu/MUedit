@@ -87,7 +87,7 @@ parameters.nwindows = window_num; % number of segmented windows over each contra
 parameters.differentialmode = 0; % 0 = no; 1 = yes (filter out the smallest MU, can improve decomposition at the highest intensities
 parameters.initialization = 1; % 0 = max EMG; 1 = random weights
 parameters.peeloff = 1; % 0 = no; 1 = yes (update the residual EMG by removing the motor units with the highest SIL value)
-parameters.covfilter = 1; % 0 = no; 1 = yes (filter out the motor units with a coefficient of variation of their ISI > than parameters.covthr)
+parameters.covfilter = 0; % 0 = no; 1 = yes (filter out the motor units with a coefficient of variation of their ISI > than parameters.covthr)
 parameters.refineMU = 0; % 0 = no; 1 = yes (refine the MU spike train over the entire signal 1-remove the discharge times that generate outliers in the discharge rate and 2- reevaluate the MU pulse train)
 parameters.drawingmode = 1; % 0 = Output in the command window ; 1 = Output in a figure
 parameters.duplicatesbgrids = 0; % 0 = do not consider duplicates between grids ; 1 = Remove duplicates between grids
