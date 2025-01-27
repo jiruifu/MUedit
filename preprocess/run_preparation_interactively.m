@@ -35,8 +35,6 @@ for k = 1:length(matFiles)
     new_data = prepareSignal(fullPath);
     disp('The output file after reformatting has been saved');
 
-
-
 end
 
 % Optional: Save the sorted list to a .txt file

@@ -61,7 +61,7 @@ path = strcat(path, '\');
 data_name = strcat(filename, ext);
 disp(['Selected dataset is at: ', path]);
 disp(['Processing the dataset: ', data_name]);
-save_path = uigetdir;
+save_path = strcat(path, 'output');
 % save_path = strcat(save_path, '\');
 disp(['Output directory is:', save_path]);
 
@@ -390,7 +390,7 @@ ipt = bss_result.Pulsetrain;
 raw_data.IPTs = ipt{1, 1};
 savename_newdata = [filename '.mat'];
 full_newdata_fname = fullfile(save_path, savename_newdata);
-save(full_newdata_fname, "raw_data");
+save(full_newdata_fname, '-struct', 'raw_data');
 disp(['Dataset is updated with new result,saved at', full_newdata_fname]);
 close all
 clear
